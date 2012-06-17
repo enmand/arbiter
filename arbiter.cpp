@@ -1,6 +1,4 @@
 
-#include <fstream>
-
 #include <zmq.hpp>
 #include <mongo/client/dbclient.h>
 
