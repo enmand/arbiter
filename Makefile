@@ -1,10 +1,12 @@
-all: .cpp.so main
+all: clean .c.so main
 
 main:
-	g++ -I/opt/local/include -L/opt/local/lib daemon.so -lmongoclient -lboost_thread-mt -lboost_filesystem -lboost_program_options -lboost_system arbiter.cpp -o arbiter
+	gcc -std=c99 -I/opt/local/include -L/opt/local/lib -L. -ldaemon -lzmq -lmongoc arbiter.c -o arbiter
 
-.cpp.so:
-	g++ -Wall -c -o daemon.so daemon.cpp
+.c.so:
+	gcc -Wall -c -fPIC -o daemon.o daemon.c
+	gcc -shared -Wl,-install_name,libdaemon.so -o libdaemon.so daemon.o
+	rm daemon.o
 
 clean:
 	rm -f *.so
