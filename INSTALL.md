@@ -6,3 +6,5 @@ h2. Requirements
 
 * ZeroMQ
 * hiredis
+
+* libglib2.0-dev on Ubuntu
