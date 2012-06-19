@@ -1,12 +1,23 @@
 #include "daemon.h"
+#include <pthread.h>
 
 void daemonize(int proc)
 {
 	bool stopping;
+	pid_t existing;
+
 	switch(proc)
 	{
 		case ARBITER_START:
-			_start();
+			existing = _getpidf();
+			if(existing != -1)
+			{
+				fprintf(stderr, "Failed to start. Maybe there is a process running already? Or a dangling pid-file?\n");
+				exit(EXIT_FAILURE);
+			} else
+			{
+				_start();
+			}
 			break;
 		case ARBITER_STOP:
 			stopping = _stop();
