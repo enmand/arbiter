@@ -90,7 +90,8 @@ bool _rmpid()
 /** write the pid to a file */
 void _setpidf(pid_t pid)
 {
-	int fd = open(ARBITER_PFILE, O_WRONLY | O_CREAT | O_TRUNC | O_EXLOCK | O_NONBLOCK, S_IRUSR | S_IWUSR);
+	int fd = open(ARBITER_PFILE, O_WRONLY | O_CREAT | O_TRUNC | O_NONBLOCK, S_IRUSR | S_IWUSR);
+	flock(fd, LOCK_EX);
 
 	if(fd != -1)
 	{
@@ -98,6 +99,8 @@ void _setpidf(pid_t pid)
 		char _pidc[_pidl];
 		snprintf(_pidc, _pidl, "%d", pid);
 		write(fd, _pidc, strlen(_pidc));
+
+		flock(fd, LOCK_UN);
 		close(fd);
 	} else
 	{
