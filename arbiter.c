@@ -4,6 +4,8 @@
 #include <stdbool.h>
 
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "daemon.h"
 
@@ -47,20 +49,6 @@ int main(int argc, char *argv[])
 
 	while(true)
 	{
-		/*bson b[1];
-		bson_init(b);
-
-		bson_append_string(b, "msg", "test");
-		bson_finish(b);
-
-		if(mongo_insert(conn, "testing.something", b, write_concern) == MONGO_ERROR)
-		{
-			// log conn->err and con->errstr
-			exit(EXIT_FAILURE);
-		}
-
-		bson_destroy(b);*/
-		usleep(150);
 	}
 
 	mongo_destroy(conn);
