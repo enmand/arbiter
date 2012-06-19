@@ -1,7 +1,7 @@
 all: clean .c.so main
 
 main:
-	gcc -std=c99 -I/opt/local/include -L/opt/local/lib -L. -ldaemon -lzmq -lmongoc arbiter.c -o arbiter
+	gcc -Wall -std=c99 -I/opt/local/include -L/opt/local/lib -L. -ldaemon -lzmq -lmongoc arbiter.c -o arbiter
 
 .c.so:
 	gcc -Wall -c -fPIC -o daemon.o daemon.c
@@ -11,4 +11,4 @@ main:
 clean:
 	rm -f *.so
 	rm -f arbiter
-	rm -f pid.arbiter
+	rm -f arbiter.pid
