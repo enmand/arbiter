@@ -1,22 +1,51 @@
 #include "daemon.h"
 
-void daemonize()
+void daemonize(int proc)
+{
+	bool stopping;
+	switch(proc)
+	{
+		case ARBITER_START:
+			_start();
+			break;
+		case ARBITER_STOP:
+			stopping = _stop();
+			if(!stopping)
+			{
+				fprintf(stderr, "Failed to stop. Is the process running?\n");
+				exit(EXIT_FAILURE);
+			}
+			break;
+	}
+}
+
+bool _stop()
+{
+	pid_t childpid = _getpidf();
+	if(childpid == -1)
+	{
+		return false;
+	} 
+	_rmpid();
+
+	kill(childpid, SIGHUP);
+	exit(EXIT_SUCCESS);
+}
+
+void _start()
 {
 	pid_t pid, sid;
-
-	signal(SIGHUP, _handlesig);
-
+	
 	if((pid = fork()) < 0)
 	{
 		exit(EXIT_FAILURE);
 	}else if(pid > 0)
 	{
-		_setpid(pid);
+		_setpidf(pid);
 		exit(EXIT_SUCCESS);
 	}
 
 	umask(0);
-	chdir("/");
 
 	if((sid = setsid()) < 0)
 	{
@@ -26,30 +55,60 @@ void daemonize()
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
-}
-
-void _handlesig(int signal)
-{
-	switch(sig):
+ 
+ 	// set up signal handlers
+	struct sigaction sa;
+	sa.sa_handler = _handlesig;
+	sigaddset(&(sa.sa_mask), SIGTERM);
+	if (sigaction(SIGTERM, &sa, NULL) != 0)
 	{
-		case SIGHUP:
-		case SIGTERM:
-			_rmpid();
-			break;		
+		exit(EXIT_FAILURE);
 	}
 }
 
-/** write the pid to a file */
-void _setpid(pid_t pid)
+void _handlesig(int sig)
 {
-	int fd = open("pid.arbiter", O_RDWR | O_CREAT , S_IRUSR | S_IWUSR);
+	_stop();
+}
+
+bool _rmpid()
+{
+	return unlink(ARBITER_PFILE) != -1;
+}
+
+/** write the pid to a file */
+void _setpidf(pid_t pid)
+{
+	int fd = open(ARBITER_PFILE, O_WRONLY | O_CREAT | O_TRUNC | O_EXLOCK | O_NONBLOCK, S_IRUSR | S_IWUSR);
 
 	if(fd != -1)
 	{
-		unsigned int _pidl = sizeof(pid_t);
+		unsigned int _pidl = sizeof(pid_t) + 2; // room for \0 and full size
 		char _pidc[_pidl];
 		snprintf(_pidc, _pidl, "%d", pid);
 		write(fd, _pidc, strlen(_pidc));
 		close(fd);
+	} else
+	{
+		perror("open");
+		kill(0, SIGTERM);
+		exit(EXIT_FAILURE);
 	}
+}
+
+pid_t _getpidf()
+{
+	struct stat _pidf;
+	if(stat(ARBITER_PFILE, &_pidf) == -1)
+	{
+		return -1;
+	}
+
+	int fd = open(ARBITER_PFILE, O_RDONLY);
+	unsigned int _pidl = sizeof(pid_t) + 2;
+
+	char _pidc[_pidl];
+	read(fd, _pidc, _pidl);
+
+	return (pid_t)atoi(_pidc);
 }
