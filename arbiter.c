@@ -3,12 +3,27 @@
 #include <mongo.h>
 #include <stdbool.h>
 
+#include <unistd.h>
+
 #include "daemon.h"
 
 
-int main()
+int main(int argc, char *argv[])
 {
-	daemonize();
+	if(argc < 2)
+	{
+		fprintf(stderr, "Usage:\n%s start|stop\n\n", argv[0]);
+		fprintf(stderr, "\tstart: start execution of the daemon\n");
+		fprintf(stderr, "\tstop:  stop execution of the daemon\n\n");
+		exit(EXIT_FAILURE);
+	}
+	if(strcmp(argv[1], "start") == 0)
+	{
+		daemonize(ARBITER_START);
+	} else 
+	{
+		daemonize(ARBITER_STOP);
+	}
 
 	void *zctx  = zmq_init(2);
 	void *zsock = zmq_socket(zctx, ZMQ_REP);
@@ -45,6 +60,7 @@ int main()
 		}
 
 		bson_destroy(b);*/
+		usleep(150);
 	}
 
 	mongo_destroy(conn);
