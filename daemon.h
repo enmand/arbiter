@@ -8,12 +8,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#if __STDC_VERSION__ >= 199901L // c99
 #include <stdbool.h>
-#else
-typedef enum {false=0, true} bool;
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
