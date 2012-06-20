@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 	mongo_set_op_timeout(conn, 100);
 	if(mongo_connect(conn, mongo_host, atoi(mongo_port)) == MONGO_ERROR)
 	{
-		// log conn->err and con->errstr
+		fprintf(stderr, "%s\n", conn->errstr);
 		exit(EXIT_FAILURE);
 	}
 
