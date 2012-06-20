@@ -1,5 +1,13 @@
 #include "daemon.h"
 
+static void _handlesig(int);
+static void _setpidf(pid_t);
+static pid_t _getpidf(void);
+static bool _rmpid();
+
+static void _start();
+static bool _stop();
+
 void daemonize(int proc)
 {
 	bool stopping;
@@ -76,7 +84,7 @@ void _start()
 	}
 }
 
-void _handlesig(int sig)
+static void _handlesig(int sig)
 {
 	_stop();
 }

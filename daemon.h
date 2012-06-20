@@ -20,12 +20,4 @@
 // prototypes for deamon and locking
 void daemonize(int);
 
-void _setpidf(pid_t);
-pid_t _getpidf(void);
-bool _rmpid();
-
-void _start();
-bool _stop();
-void _handlesig(int);
-
 #endif
