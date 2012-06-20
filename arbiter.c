@@ -1,6 +1,4 @@
-
 #include <zmq.h>
-#include <mongo.h>
 
 #include <stdbool.h>
 #include <unistd.h>
@@ -43,28 +41,12 @@ int main(int argc, char *argv[])
 	sprintf(zmqhost, "tcp://%s:%s", listen, port);
 	zmq_bind(zsock, zmqhost);
 
-	mongo *conn = malloc(sizeof(mongo));
-	mongo_init(conn);
-	mongo_set_op_timeout(conn, 100);
-	if(mongo_connect(conn, mongo_host, atoi(mongo_port)) == MONGO_ERROR)
-	{
-		fprintf(stderr, "%s\n", conn->errstr);
-		exit(EXIT_FAILURE);
-	}
 
-	// We want writes not to fail
-	mongo_write_concern write_concern[1];
-	mongo_write_concern_init(write_concern);
-	write_concern->w = 1;
-	mongo_write_concern_finish(write_concern);
 
 	while(true)
 	{
 		usleep(200);
 	}
-
-	mongo_destroy(conn);
-	free(conn);
 }
 
 void parse_opts(int argc, char *argv[], bool *fork, char** action, 
@@ -117,13 +99,11 @@ void parse_opts(int argc, char *argv[], bool *fork, char** action,
 
 void usage(const char *name)
 {
-	fprintf(stderr, "Usage:\n%s [-f start|stop] [-h] [-v] [-l address] [-p port] [-m address] [-n port] \n\n", name);
+	fprintf(stderr, "Usage:\n%s [-f start|stop] [-h] [-v] [-l address] [-p port] \n\n", name);
 	fprintf(stderr, "where:\n");
 	fprintf(stderr, " -h\t\tPrint this help.\n");
 	fprintf(stderr, " -v\t\tDon't fork, and log to stderr\n");
 	fprintf(stderr, " -f start|stop\tCreate a daemon.\n");
 	fprintf(stderr, " -p\t\tPort number. (default: 1802)\n");
 	fprintf(stderr, " -l\t\tListen address. (default: 0.0.0.0)\n");
-	fprintf(stderr, " -m\t\tMongo host to connect to. (default: 127.0.0.1)\n");
-	fprintf(stderr, " -n\t\tMongo port to connect to. (default: 27017)\n");
 }
