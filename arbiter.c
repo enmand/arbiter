@@ -105,7 +105,8 @@ void parse_opts(int argc, char *argv[], bool *fork, char** action,
 				exit(EXIT_FAILURE);
 		}
 	}
-	if(!dostart)
+
+	if( ! dostart)
 	{
 		fprintf(stderr, "ERROR: -s or -f is required to start\n\n");
 		usage(argv[0]);
