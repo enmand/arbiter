@@ -11,17 +11,17 @@
 
 #include "daemon.h"
 
-void parse_opts(int, char**, bool*, char**, int*, char**, char**, int*);
+void parse_opts(int, char**, bool*, char**, char**, char**, char**, char**);
 void usage(const char*);
 
 int main(int argc, char *argv[])
 {
 	bool fork;
 	char *action = 0;
-	int port = 1802;
+	char *port = "1802";
 	char *listen = "*";
 	char *mongo_host = "127.0.0.1";
-	int mongo_port = 27017;
+	char *mongo_port = "27017";
 
 	parse_opts(argc, argv, &fork, &action, &port, &listen, &mongo_host, &mongo_port);
 
@@ -39,12 +39,14 @@ int main(int argc, char *argv[])
 	void *zctx  = zmq_init(2);
 	void *zsock = zmq_socket(zctx, ZMQ_REP);
 
-	zmq_bind(zsock, "tcp://*:1802");
+	char *zmqhost = malloc(sizeof(zmqhost) + strlen(listen) + 1);
+	sprintf(zmqhost, "tcp://%s:%s", listen, port);
+	zmq_bind(zsock, zmqhost);
 
 	mongo *conn = malloc(sizeof(mongo));
 	mongo_init(conn);
 	mongo_set_op_timeout(conn, 100);
-	if(mongo_connect(conn, "127.0.0.1", 27017) == MONGO_ERROR)
+	if(mongo_connect(conn, mongo_host, atoi(mongo_port)) == MONGO_ERROR)
 	{
 		// log conn->err and con->errstr
 		exit(EXIT_FAILURE);
@@ -65,12 +67,12 @@ int main(int argc, char *argv[])
 }
 
 void parse_opts(int argc, char *argv[], bool *fork, char** action, 
-					int* port, char** listen, char** mongo_host, 
-					int* mongo_port)
+					char** port, char** listen, char** mongo_host, 
+					char** mongo_port)
 {
 	int opt;
 	bool dostart = false;
-	while((opt = getopt(argc, argv, "sf:p:l:m:h")) != -1)
+	while((opt = getopt(argc, argv, "sf:p:l:m:n:h")) != -1)
 	{
 		switch(opt)
 		{
@@ -85,6 +87,18 @@ void parse_opts(int argc, char *argv[], bool *fork, char** action,
 			case 's':
 				dostart = true;
 				*fork = false;
+				break;
+			case 'l':
+				*listen = optarg;
+				break;
+			case 'p':
+				*port = optarg;
+				break;
+			case 'm':
+				*mongo_host = optarg;
+				break;
+			case 'n':
+				*mongo_port = optarg;
 				break;
 			default:
 				usage(argv[0]);
