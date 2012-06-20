@@ -90,7 +90,7 @@ void _start()
 	}
 }
 
-static void _handlesig(int sig)
+void _handlesig(int sig)
 {
 	_stop();
 }
