@@ -73,6 +73,12 @@ void _start()
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
+
+	// redirect to /dev/null, and rely on logging
+	// instead of stderr
+	open("/dev/null", O_RDONLY);
+	open("/dev/null", O_RDWR);
+	open("/dev/null", O_RDWR);
  
  	// set up signal handlers
 	struct sigaction sa;
