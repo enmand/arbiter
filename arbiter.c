@@ -73,7 +73,7 @@ void parse_opts(int argc, char *argv[], bool *fork, char** action,
 {
 	int opt;
 	bool dostart = false;
-	while((opt = getopt(argc, argv, "sf:p:l:m:n:h")) != -1)
+	while((opt = getopt(argc, argv, "vf:p:l:m:n:h")) != -1)
 	{
 		switch(opt)
 		{
@@ -85,7 +85,7 @@ void parse_opts(int argc, char *argv[], bool *fork, char** action,
 				*fork = true;
 				*action = optarg;
 				break;
-			case 's':
+			case 'v':
 				dostart = true;
 				*fork = false;
 				break;
@@ -120,7 +120,7 @@ void usage(const char *name)
 	fprintf(stderr, "Usage:\n%s [-f start|stop] [-h] \n\n", name);
 	fprintf(stderr, "where:\n");
 	fprintf(stderr, " -h\t\tPrint this help.\n");
-	fprintf(stderr, " -s\t\tDon't fork, and log to stderr\n");
+	fprintf(stderr, " -v\t\tDon't fork, and log to stderr\n");
 	fprintf(stderr, " -f start|stop\tCreate a daemon.\n");
 	fprintf(stderr, " -p\t\tPort number. (default: 1802)\n");
 	fprintf(stderr, " -l\t\tListen address. (default: 0.0.0.0)\n");
