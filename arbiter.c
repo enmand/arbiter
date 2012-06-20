@@ -117,7 +117,7 @@ void parse_opts(int argc, char *argv[], bool *fork, char** action,
 
 void usage(const char *name)
 {
-	fprintf(stderr, "Usage:\n%s [-f start|stop] [-h] \n\n", name);
+	fprintf(stderr, "Usage:\n%s [-f start|stop] [-h] [-v] [-l address] [-p port] [-m address] [-n port] \n\n", name);
 	fprintf(stderr, "where:\n");
 	fprintf(stderr, " -h\t\tPrint this help.\n");
 	fprintf(stderr, " -v\t\tDon't fork, and log to stderr\n");
@@ -125,5 +125,5 @@ void usage(const char *name)
 	fprintf(stderr, " -p\t\tPort number. (default: 1802)\n");
 	fprintf(stderr, " -l\t\tListen address. (default: 0.0.0.0)\n");
 	fprintf(stderr, " -m\t\tMongo host to connect to. (default: 127.0.0.1)\n");
-	fprintf(stderr, " -n\t\tMongo port to connect to. (default: 27017)");
+	fprintf(stderr, " -n\t\tMongo port to connect to. (default: 27017)\n");
 }
