@@ -7,10 +7,18 @@
 
 #include <getopt.h>
 
+#if __APPLE__ || __linux__ || __sun__
+#define CPU_SIZE sysconf( _SC_NPROCESSORS_ONLN )
+#else
+#define CPU_SIZE 1l
+#endif
+
 #include "daemon.h"
 
 void parse_opts(int, char**, bool*, char**, char**, char**, char**, char**);
 void usage(const char*);
+
+static void _mainloop(void *);
 
 int main(int argc, char *argv[])
 {
@@ -34,7 +42,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	void *zctx  = zmq_init(2);
+	// set up zmq
+	void *zctx  = zmq_init(CPU_SIZE);
 	void *zsock = zmq_socket(zctx, ZMQ_REP);
 
 	char *zmqhost = malloc(sizeof(zmqhost) + strlen(listen) + 1);
@@ -42,9 +51,32 @@ int main(int argc, char *argv[])
 	zmq_bind(zsock, zmqhost);
 
 
+	_mainloop(zsock);
+}
 
+
+void _mainloop(void *zsock)
+{
 	while(true)
 	{
+		zmq_msg_t *zmsg = malloc(sizeof(zmq_msg_t));
+		zmq_msg_init(zmsg);
+
+		int rc = zmq_recv(zsock, zmsg, 0);
+
+		int size = zmq_msg_size(zmsg);
+		char *_msg = malloc(size + 1);
+		memcpy(_msg, zmq_msg_data(zmsg), size);
+
+		if(rc == 0) // zmq_recv 0 is non-error
+		{
+			fprintf(stderr, "Got a connection\n");
+		}
+
+		zmq_send(zsock, zmsg, 0);
+		zmq_msg_close(zmsg);
+
+		free(_msg);
 		usleep(200);
 	}
 }
