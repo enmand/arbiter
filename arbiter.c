@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
 
 	while(true)
 	{
+		usleep(200);
 	}
 
 	mongo_destroy(conn);
