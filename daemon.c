@@ -1,5 +1,4 @@
 #include "daemon.h"
-#include <pthread.h>
 
 void daemonize(int proc)
 {
