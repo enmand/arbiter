@@ -22,13 +22,6 @@ void usage(const char*);
 
 static void _mainloop(void *);
 
-void *something(void *arg)
-{
-	fprintf(stderr, "something");
-	void *ret;
-	return ret;
-}
-
 int main(int argc, char *argv[])
 {
 	bool fork;
@@ -60,16 +53,8 @@ int main(int argc, char *argv[])
 	sprintf(zmqhost, "tcp://%s:%s", listen, port);
 	zmq_bind(zsock, zmqhost);
 
-
 	_mainloop(zsock);
 }
-
-struct worker
-{
-	pthread_mutex_t mutex;
-	pthread_t tid;
-	pthread_attr_t attr;
-};
 
 void _mainloop(void *zsock)
 {
