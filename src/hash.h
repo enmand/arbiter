@@ -23,7 +23,8 @@ typedef struct
 } hash_t;
 
 hash_t *hash_init();
-bool hash_add(hash_t *, void *, void*, _h_size_t);
+void hash_free(hash_t*);
+bool hash_add(hash_t*, void*, void*, _h_size_t);
 void *hash_find(hash_t*, void*);
 bool hash_remove(hash_t*, void*);
 
