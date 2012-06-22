@@ -6,13 +6,6 @@
 #include <pthread.h>
 #include <zmq.h>
 
-struct commands 
-{
-	char *name;
-	void *proc;
-	char *alias;
-};
-
 typedef struct 
 {
 	void *socket;
