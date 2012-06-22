@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <pthread.h>
+
 #include <getopt.h>
 
 #if __APPLE__ || __linux__ || __sun__
@@ -20,6 +22,13 @@ void usage(const char*);
 
 static void _mainloop(void *);
 
+void *something(void *arg)
+{
+	fprintf(stderr, "something");
+	void *ret;
+	return ret;
+}
+
 int main(int argc, char *argv[])
 {
 	bool fork;
@@ -29,6 +38,7 @@ int main(int argc, char *argv[])
 	char *mongo_host = "127.0.0.1";
 	char *mongo_port = "27017";
 
+	// get our opts to run our program
 	parse_opts(argc, argv, &fork, &action, &port, &listen, &mongo_host, &mongo_port);
 
 	if(fork)
@@ -54,6 +64,12 @@ int main(int argc, char *argv[])
 	_mainloop(zsock);
 }
 
+struct worker
+{
+	pthread_mutex_t mutex;
+	pthread_t tid;
+	pthread_attr_t attr;
+};
 
 void _mainloop(void *zsock)
 {
