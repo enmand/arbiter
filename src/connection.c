@@ -25,6 +25,5 @@ conn_t *conn_init(void *socket)
 
 char* conn_process(conn_t* conn, char* msg)
 {
-	fprintf(stderr, "%s", msg);
-	return "conn";
+	return msg;
 }
