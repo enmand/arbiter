@@ -16,6 +16,7 @@
 #endif
 
 #include "daemon.h"
+#include "connection.h"
 
 void parse_opts(int, char**, bool*, char**, char**, char**, char**, char**);
 void usage(const char*);
@@ -63,22 +64,24 @@ void _mainloop(void *zsock)
 		zmq_msg_t *zmsg = malloc(sizeof(zmq_msg_t));
 		zmq_msg_init(zmsg);
 
+		// zmq_recv blocks with default flags, so we don't need to usleep
 		int rc = zmq_recv(zsock, zmsg, 0);
-
-		int size = zmq_msg_size(zmsg);
-		char *_msg = malloc(size + 1);
-		memcpy(_msg, zmq_msg_data(zmsg), size);
 
 		if(rc == 0) // zmq_recv 0 is non-error
 		{
-			fprintf(stderr, "Got a connection\n");
+			int size = zmq_msg_size(zmsg);
+			char *_msg = malloc(size + 1);
+			memcpy(_msg, zmq_msg_data(zmsg), size);
+
+			conn_t *connection = conn_init(zsock);
+			char *resp = conn_process(connection, _msg);
+			printf("%s", resp);
+
+			zmq_send(zsock, zmsg, 0);
+			zmq_msg_close(zmsg);
+
+			free(_msg);
 		}
-
-		zmq_send(zsock, zmsg, 0);
-		zmq_msg_close(zmsg);
-
-		free(_msg);
-		usleep(200);
 	}
 }
 
