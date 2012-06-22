@@ -75,7 +75,6 @@ void _mainloop(void *zsock)
 
 			conn_t *connection = conn_init(zsock);
 			char *resp = conn_process(connection, _msg);
-			printf("%s", resp);
 
 			zmq_send(zsock, zmsg, 0);
 			zmq_msg_close(zmsg);
