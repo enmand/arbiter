@@ -1,4 +1,5 @@
 #include "connection.h"
+#include "hash.h"
 
 #include <stdio.h>
 

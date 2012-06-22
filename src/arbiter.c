@@ -17,6 +17,7 @@
 
 #include "daemon.h"
 #include "connection.h"
+#include "hash.h"
 
 void parse_opts(int, char**, bool*, char**, char**, char**, char**, char**);
 void usage(const char*);
