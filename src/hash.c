@@ -1,6 +1,7 @@
 #include "hash.h"
 
 static _h_size_t do_hash_func(const char *);
+static bool hash_resize(hash_t *hash, bool grow);
 
 hash_t *hash_init()
 {
@@ -10,9 +11,9 @@ hash_t *hash_init()
 		return NULL;
 	}
 
-	// Alloocate our base hash
+	// Allocate our base hash
 	hash->keys_alloc = 8;
-	hash->bucket = (hash_elm_t**)calloc(hash->keys_alloc, sizeof(hash_elm_t));
+	hash->bucket = HASH_ALLOC;
 
 	if(hash->bucket == NULL)
 	{

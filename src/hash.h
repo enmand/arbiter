@@ -7,6 +7,8 @@
 #include <stdbool.h>
 
 typedef uint64_t _h_size_t;
+#define HASH_ALLOC (hash_elm_t**)calloc(hash->keys_alloc, sizeof(hash_elm_t))
+#define HASH(key) do_hash_func(key)
 
 typedef struct
 {
