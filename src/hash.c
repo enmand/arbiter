@@ -41,17 +41,16 @@ void hash_free(hash_t *hash)
 
 _h_size_t do_hash_func(const char *key)
 {
-	_h_size_t hash = 0xd3fa24;
+	_h_size_t hash = 0xd3fa;
 	_h_size_t len = strlen(key);
 
 	while(len--)
 	{
-		hash ^= ((hash << 4) + hash) + (*key++);
+		hash ^= ((hash << 5) + hash) + (*(key++)<<4);
 	}
 
 	return hash;
 }
-
 
 bool hash_add(hash_t *table, void *key, void *value, _h_size_t size)
 {
