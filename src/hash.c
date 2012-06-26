@@ -76,16 +76,6 @@ bool hash_resize(hash_t *hash, bool grow)
 
 void hash_free(hash_t *hash)
 {
-	_h_size_t i;
-	for(i = 0; i < hash->keys_alloc; i++)
-	{
-		// clean our buckets
-		while(hash->bucket[i])
-		{
-			free(hash->bucket[i]);
-		}
-	}
-
 	free(hash->bucket);
 	free(hash);
 }
