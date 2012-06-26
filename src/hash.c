@@ -152,6 +152,49 @@ hash_elm_t *hash_add(hash_t *hash, void *key, void *value)
 	return element;
 }
 
+bool hash_remove(hash_t *hash, void *key)
+{
+	_h_size_t h = do_hash_func(key, hash->keys_alloc);
+
+	if(hash->bucket[h] == NULL)
+	{
+		return false;
+	} else
+	{
+		hash_elm_t *it   = hash->bucket[h];
+		hash_elm_t *prev = hash->bucket[h];
+
+		while(it)
+		{
+			if(sizeof(it->key) == sizeof(key) 
+				&& memcmp(it->key, key, sizeof(key)) == 0)
+			{
+				if(prev == hash->bucket[h] && it->next)
+				{
+					hash->bucket[h] = it->next;
+				} else if(it->next)
+				{		
+					prev->next = it->next;
+					break;
+				} else
+				{
+					prev->next = NULL;
+				}
+			}
+
+			if(it->next)
+			{
+				prev = it;
+				it = it->next;
+			} else
+			{
+				it = NULL;
+			}
+		}
+	}
+	return false;
+}
+
 hash_elm_t *hash_find(hash_t *hash, void *key)
 {
 	_h_size_t h = do_hash_func(key, hash->keys_alloc);
