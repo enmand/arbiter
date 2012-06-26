@@ -6,28 +6,39 @@
 #include <string.h>
 #include <stdbool.h>
 
-typedef uint64_t _h_size_t;
-#define HASH_ALLOC (hash_elm_t**)calloc(hash->keys_alloc, sizeof(hash_elm_t))
-#define HASH(key) do_hash_func(key)
+#define HASH_ALLOC(size) (hash_elm_t**)calloc(size, sizeof(hash_elm_t *))
+#define DEBUGS(msg) fprintf(stderr, "%s\n", msg);
+#define DEBUGN(msg) fprintf(stderr, "%llu\n", msg);
 
-typedef struct
+typedef uint64_t _h_size_t;
+typedef struct hash_elm_struct hash_elm_t;
+typedef struct hash_struct hash_t;
+
+struct hash_elm_struct
 {
 	void *key;
 	void *value;
-	struct hash_elm_t *next;
-} hash_elm_t;
+	hash_elm_t *next;
+};
 
-typedef struct
+struct hash_struct
 {
 	hash_elm_t **bucket;
 	_h_size_t keys_count;
 	_h_size_t keys_alloc;
-} hash_t;
+};
+
+typedef struct
+{
+	void *elements;
+} table_t;
 
 hash_t *hash_init();
 void hash_free(hash_t*);
-bool hash_add(hash_t*, void*, void*, _h_size_t);
-void *hash_find(hash_t*, void*);
+hash_elm_t *hash_add(hash_t*, void*, void*);
+hash_elm_t *hash_find(hash_t*, void*);
 bool hash_remove(hash_t*, void*);
+
+hash_t *hash_from_table(table_t*);
 
 #endif
