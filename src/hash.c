@@ -1,6 +1,7 @@
 #include "hash.h"
+#include <stdio.h>
 
-static _h_size_t do_hash_func(const char *);
+static _h_size_t do_hash_func(const char *, _h_size_t);
 static bool hash_resize(hash_t *hash, bool grow);
 
 hash_t *hash_init()
@@ -12,8 +13,9 @@ hash_t *hash_init()
 	}
 
 	// Allocate our base hash
-	hash->keys_alloc = 8;
-	hash->bucket = HASH_ALLOC;
+	hash->keys_count = 0;
+	hash->keys_alloc = 1;
+	hash->bucket = HASH_ALLOC(hash->keys_alloc);
 
 	if(hash->bucket == NULL)
 	{
@@ -22,6 +24,52 @@ hash_t *hash_init()
 	}
 
 	return hash;
+}
+
+bool hash_resize(hash_t *hash, bool grow)
+{
+	_h_size_t len 	= 0;
+	_h_size_t bsize = 0;
+
+	if(grow)
+	{
+		bsize = hash->keys_count;
+		len = hash->keys_alloc << 2;
+	} else
+	{
+		if(len < hash->keys_count)
+		{
+			// we can't resize if we're trying to
+			// resize to a smaller len than we have
+			// keys
+			return false;
+		}
+
+		len = hash->keys_alloc >> 2;
+		bsize = len;
+	}
+
+	hash_elm_t **new_hash = HASH_ALLOC(len);
+
+	while(bsize--)
+	{
+		hash_elm_t *it 	= hash->bucket[bsize];
+		_h_size_t h		= do_hash_func(it->key, len);
+		do
+		{
+			new_hash[h] = it;
+			if(it->next)
+			{
+				it = it->next;
+			}
+		} while(it->next);
+	}
+
+	// Set the new bucket up
+	free(*hash->bucket);
+	*(hash->bucket) = *new_hash;
+	
+	return true;
 }
 
 void hash_free(hash_t *hash)
@@ -39,21 +87,106 @@ void hash_free(hash_t *hash)
 	free(hash);
 }
 
-_h_size_t do_hash_func(const char *key)
+_h_size_t do_hash_func(const char *key, _h_size_t max)
 {
-	_h_size_t hash = 0xd3fa;
+	_h_size_t *ptr = (_h_size_t*)key;
 	_h_size_t len = strlen(key);
+	_h_size_t hash = *ptr * len;
 
 	while(len--)
 	{
-		hash ^= ((hash << 5) + hash) + (*(key++)<<4);
+		hash ^= (*ptr * len<<4);
 	}
 
-	return hash;
+	return hash % max;
 }
 
-bool hash_add(hash_t *table, void *key, void *value, _h_size_t size)
+hash_elm_t *hash_add(hash_t *hash, void *key, void *value)
 {
-	_h_size_t h = do_hash_func(key);
-	return ~h;
+	// do we have room in our hash?
+	if(hash->keys_count == hash->keys_alloc)
+	{
+		hash_resize(hash, true);
+	}
+
+	_h_size_t h = do_hash_func(key, hash->keys_alloc);
+
+	hash_elm_t *element = (hash_elm_t*)calloc(1, sizeof(hash_elm_t));
+
+	if(element == NULL)
+	{
+		return NULL;
+	}
+
+	element->key = malloc(sizeof(key));
+	element->value = malloc(sizeof(value));
+
+	memcpy(element->key, key, sizeof(key));
+	memcpy(element->value, value, sizeof(value));
+	element->next = NULL;
+
+	if(hash->bucket[h] == NULL) // no collision
+	{
+		hash->bucket[h] = element;
+		hash->keys_count++;
+	} else // collision, add to end of linked list
+	{
+		hash_elm_t *it = hash->bucket[h];
+		while(it->next)
+		{
+			if(sizeof(it->next->key) == sizeof(key) 
+				&& memcmp(it->next->key, key, sizeof(key)) == 0)
+			{
+				// found the key in our existing map, replace
+				// the value
+				hash_elm_t *tmp = it->next;
+				
+				it->next = element;
+				element->next = it->next->next;
+
+				free(tmp);
+
+				return element;
+			}
+			it = it->next;
+		}
+		
+		// add it to the end of our bucket linked list
+		it->next = element;
+	}
+
+	return element;
+}
+
+hash_elm_t *hash_find(hash_t *hash, void *key)
+{
+	_h_size_t h = do_hash_func(key, hash->keys_alloc);
+
+	if(hash->bucket[h] == NULL)
+	{
+		return NULL;
+	} else
+	{
+		hash_elm_t *it = hash->bucket[h];
+		while(it)
+		{
+			if(sizeof(it->key) == sizeof(key) 
+				&& memcmp(it->key, key, sizeof(key)) == 0)
+			{
+				return it;
+			}
+
+			if(it->next)
+			{
+				it = it->next;
+			}
+			else
+			{ 
+				// no element found, no next element (maybe first?)
+				return NULL;
+			}
+		}
+	}
+	
+	return NULL;
 }
