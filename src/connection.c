@@ -21,10 +21,25 @@ conn_t *conn_init(void *socket)
 
 	conn->socket = socket;
 
+	conn->commands = hash_init();
+	hash_add(conn->commands, "get", "get");
+	hash_add(conn->commands, "set", "set");
+	hash_add(conn->commands, "ls", "ls");
+	hash_add(conn->commands, "rm", "rm");
+	hash_add(conn->commands, "quit", "quit");
+
+	conn->store = hash_init();
+
 	return conn;
 }
 
 char* conn_process(conn_t* conn, char* msg)
 {
-	return msg;
+	hash_elm_t *el = hash_find(conn->commands, msg);
+	if(el == NULL)
+	{
+		return NULL;
+	}
+
+	return el->value;
 }
