@@ -73,12 +73,18 @@ void _mainloop(void *zsock)
 			int size = zmq_msg_size(zmsg);
 			char *_msg = malloc(size + 1);
 			memcpy(_msg, zmq_msg_data(zmsg), size);
+			zmq_msg_close(zmsg);
+			_msg[size] = 0;
 
 			conn_t *connection = conn_init(zsock);
 			char *resp = conn_process(connection, _msg);
 
-			zmq_send(zsock, zmsg, 0);
-			zmq_msg_close(zmsg);
+			zmq_msg_t *zmqresp = malloc(sizeof(zmq_msg_t));
+			zmq_msg_init_size(zmqresp, strlen(resp));
+			memcpy(zmq_msg_data(zmqresp), resp, strlen(resp));
+
+			zmq_send(zsock, zmqresp, 0);
+			zmq_msg_close(zmqresp);
 
 			free(_msg);
 		}
