@@ -1,7 +1,7 @@
 #include "hash.h"
 #include <stdio.h>
 
-static _h_size_t do_hash_func(const char *, _h_size_t);
+static _h_size_t do_hash_func(void *, _h_size_t);
 static bool hash_resize(hash_t *hash, bool grow);
 
 hash_t *hash_init()
@@ -84,13 +84,14 @@ void hash_free(hash_t *hash)
 		}
 	}
 
+	free(hash->bucket);
 	free(hash);
 }
 
-_h_size_t do_hash_func(const char *key, _h_size_t max)
+_h_size_t do_hash_func(void *key, _h_size_t max)
 {
 	_h_size_t *ptr = (_h_size_t*)key;
-	_h_size_t len = strlen(key);
+	_h_size_t len = sizeof(key);
 	_h_size_t hash = *ptr * len;
 
 	while(len--)
@@ -122,7 +123,8 @@ hash_elm_t *hash_add(hash_t *hash, void *key, void *value)
 	element->value = malloc(sizeof(value));
 
 	memcpy(element->key, key, sizeof(key));
-	memcpy(element->value, value, sizeof(value));
+	element->value = value;
+
 	element->next = NULL;
 
 	if(hash->bucket[h] == NULL) // no collision
