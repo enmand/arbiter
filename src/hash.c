@@ -14,7 +14,7 @@ hash_t *hash_init()
 
 	// Allocate our base hash
 	hash->keys_count = 0;
-	hash->keys_alloc = 8;
+	hash->keys_alloc = 256;
 	hash->bucket = HASH_ALLOC(hash->keys_alloc);
 
 	if(hash->bucket == NULL)
@@ -88,7 +88,7 @@ _h_size_t do_hash_func(void *key, _h_size_t max)
 
 	while(len--)
 	{
-		hash ^= (*ptr * len<<4);
+		hash ^= hash*((*ptr<<2) + (len<<4));
 	}
 
 	return hash % max;
