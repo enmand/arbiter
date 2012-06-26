@@ -55,9 +55,11 @@ bool hash_resize(hash_t *hash, bool grow)
 	{
 		hash_elm_t *it 	= hash->bucket[bsize];
 		_h_size_t h		= do_hash_func(it->key, len);
+		
 		do
 		{
 			new_hash[h] = it;
+
 			if(it->next)
 			{
 				it = it->next;
