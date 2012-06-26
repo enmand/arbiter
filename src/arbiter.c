@@ -119,12 +119,6 @@ void parse_opts(int argc, char *argv[], bool *fork, char** action,
 			case 'p':
 				*port = optarg;
 				break;
-			case 'm':
-				*mongo_host = optarg;
-				break;
-			case 'n':
-				*mongo_port = optarg;
-				break;
 			default:
 				usage(argv[0]);
 				exit(EXIT_FAILURE);
