@@ -14,7 +14,7 @@ hash_t *hash_init()
 
 	// Allocate our base hash
 	hash->keys_count = 0;
-	hash->keys_alloc = 1;
+	hash->keys_alloc = 8;
 	hash->bucket = HASH_ALLOC(hash->keys_alloc);
 
 	if(hash->bucket == NULL)
